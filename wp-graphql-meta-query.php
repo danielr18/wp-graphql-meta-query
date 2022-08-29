@@ -51,6 +51,9 @@ class MetaQuery {
 		 */
 		$this->includes();
 
+		// Register Tax Query Types
+		add_action( get_graphql_register_action(), [ $this, 'register_types' ], 10, 1 );
+
 		/**
 		 * Filter the query_args for the PostObjectQueryArgsType
 		 *
@@ -138,9 +141,8 @@ class MetaQuery {
 	 */
 	public function add_input_fields( $fields, $type_name, $config, $type_registry ) {
 		if ( isset( $config['queryClass'] ) && 'WP_Query' === $config['queryClass'] ) {
-			$this->register_types( $type_name, $type_registry );
 			$fields['metaQuery'] = [
-				'type' => $type_name . 'MetaQuery',
+				'type' => 'MetaQuery',
 			];
 		}
 
@@ -148,14 +150,13 @@ class MetaQuery {
 	}
 
 	/**
-	 * @param              $type_name
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @throws \Exception
 	 */
-	public function register_types( $type_name, TypeRegistry $type_registry ) {
+	public function register_types( TypeRegistry $type_registry ) {
 
-		$type_registry->register_enum_type( $type_name . 'MetaTypeEnum', [
+		$type_registry->register_enum_type( 'MetaTypeEnum', [
 			'values' => [
 				'NUMERIC' => [
 					'name'  => 'NUMERIC',
@@ -196,7 +197,7 @@ class MetaQuery {
 			]
 		] );
 
-		$type_registry->register_enum_type( $type_name . 'MetaCompareEnum', [
+		$type_registry->register_enum_type( 'MetaCompareEnum', [
 			'values' => [
 				'EQUAL_TO'                 => [
 					'name'  => 'EQUAL_TO',
@@ -257,7 +258,7 @@ class MetaQuery {
 			]
 		] );
 
-		$type_registry->register_input_type( $type_name . 'MetaArray', [
+		$type_registry->register_input_type( 'MetaArray', [
 			'fields' => [
 				'key'     => [
 					'type'        => 'String',
@@ -268,24 +269,24 @@ class MetaQuery {
 					'description' => __( 'Custom field value', 'wp-graphql' ),
 				],
 				'compare' => [
-					'type'        => $type_name . 'MetaCompareEnum',
+					'type'        => 'MetaCompareEnum',
 					'description' => __( 'Custom field value', 'wp-graphql' ),
 				],
 				'type'    => [
-					'type'        => $type_name . 'MetaTypeEnum',
+					'type'        => 'MetaTypeEnum',
 					'description' => __( 'Custom field value', 'wp-graphql' ),
 				],
 			]
 		] );
 
-		$type_registry->register_input_type( $type_name . 'MetaQuery', [
+		$type_registry->register_input_type( 'MetaQuery', [
 			'fields' => [
 				'relation'  => [
 					'type' => 'RelationEnum',
 				],
 				'metaArray' => [
 					'type' => [
-						'list_of' => $type_name . 'MetaArray',
+						'list_of' => 'MetaArray',
 					],
 				],
 			]
